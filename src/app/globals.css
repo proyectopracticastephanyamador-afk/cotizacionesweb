@@ -1,151 +1,293 @@
 @import "tailwindcss";
 
-/* ================================
-   🎨 Paleta SAP Light (Fiori 3)
-   ================================ */
+/* ======================================================
+   🎨 PALETA DAVIVIENDA + ESTILO MODERNO
+   ====================================================== */
 
 :root {
-  /* Colores principales */
-  --sap-primary: #0a6ed1;         /* Azul corporativo SAP */
-  --sap-primary-hover: #085ca0;   /* Azul más oscuro al pasar el mouse */
-  --sap-accent: #107e3e;          /* Verde para acciones secundarias */
-  --sap-border: #d1d8e0;          /* Gris claro para bordes */
-  --sap-surface: #ffffff;         /* Fondo principal */
-  --sap-surface-alt: #f5f7fa;     /* Fondos secundarios */
-  --sap-text: #1a1a1a;            /* Texto principal */
-  --sap-text-muted: #5a5a5a;      /* Texto secundario */
-  --sap-shadow: rgba(0, 0, 0, 0.08);
+  --dav-red: #ed1c27;
+  --dav-red-dark: #c71722;
+  --dav-yellow: #ffcc00;
+
+  --dav-border: #e0e0e0;
+  --dav-surface: #ffffff;
+  --dav-surface-alt: #f7f7f7;
+  --dav-text: #333333;
+  --dav-text-muted: #777777;
+
+  --dav-shadow: rgba(0, 0, 0, 0.1);
+  --dav-radius: 6px;
 }
 
+/* Tailwind Theme Overrides */
 @theme inline {
-  --color-background: var(--sap-surface);
-  --color-foreground: var(--sap-text);
-  --font-sans: "72", "Segoe UI", "Arial", sans-serif;
+  --color-background: var(--dav-surface);
+  --color-foreground: var(--dav-text);
+  --font-sans: "Arial", "Segoe UI", "Roboto", sans-serif;
 }
 
-/* ================================
-   ✨ Estilos base
-   ================================ */
+/* ======================================================
+   🧼 RESET MODERNO
+   ====================================================== */
 
 body {
-  background-color: var(--sap-surface);
-  color: var(--sap-text);
-  font-family: "72", "Segoe UI", Arial, Helvetica, sans-serif;
+  background-color: var(--dav-surface);
+  color: var(--dav-text);
+  font-family: "Arial", "Segoe UI", "Roboto", sans-serif;
   font-size: 14px;
-  line-height: 1.5;
-  margin: 0;
+  margin: 0px 16px 16px 16px;
+  padding: 0px 16px 16px 16px;
+}
+
+/* ======================================================
+   🟥 MENÚ SUPERIOR DAVIVIENDA
+   ====================================================== */
+
+.droplinetabs {
+  width: 100%;
+  background: var(--dav-red);
+  height: 60px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 4px var(--dav-shadow);
+}
+
+.droplinetabs ul.nivel0 {
+  display: flex;
+  list-style: none;
   padding: 0;
+  margin: 0;
+  height: 100%;
+  align-items: center;
+  width: 100%;
 }
 
-/* ================================
-   🧭 Encabezados
-   ================================ */
-
-h1, h2, h3, h4, h5 {
-  color: var(--sap-primary);
-  font-weight: 600;
-  margin-bottom: 0.5rem;
+.droplinetabs ul.nivel0 > li {
+  display: flex;
+  align-items: center;
+  height: 100%;
 }
 
-/* ================================
-   🔘 Botones
-   ================================ */
-
-button {
-  background-color: var(--sap-primary);
-  color: white;
-  border-radius: 4px;
-  border: none;
-  padding: 4px;
+.link-item,
+.droplinetabs a {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 18px;
+  font-size: 14px;
+  text-decoration: none;
+  color: #fff;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s ease-in-out, box-shadow 0.2s;
-  box-shadow: 0 1px 3px var(--sap-shadow);
+  transition: background 0.2s ease;
 }
 
-button:hover {
-  background-color: var(--sap-primary-hover);
-  box-shadow: 0 2px 4px var(--sap-shadow);
+.nivel0Seleccionado {
+  background: var(--dav-red-dark);
+}
+
+.nivel0Apagado:hover {
+  background: var(--dav-red-dark);
+}
+
+/* ===== Submenu estilo Davivienda ===== */
+
+.submenu {
+  position: absolute;
+  top: 58px;
+  left: 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+  border: 1px solid var(--dav-border);
+  width: 240px;
+  padding: 10px 0;
+  z-index: 999;
+}
+
+.submenu-item {
+  display: block;
+  padding: 10px 18px;
+  color: var(--dav-text);
+  font-size: 14px;
+  text-decoration: none;
+  border-bottom: 1px solid #f2f2f2;
+  transition: background 0.2s ease;
+}
+
+.submenu-item:hover {
+  background: #ffe6e6;
+}
+
+/* ======================================================
+   🔘 BOTONES
+   ====================================================== */
+
+button,
+.btn {
+  background-color: var(--dav-red);
+  color: white;
+  padding: 6px 12px;
+  border-radius: var(--dav-radius);
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 1px 3px var(--dav-shadow);
+}
+
+button:hover,
+.btn:hover {
+  background-color: var(--dav-red-dark);
 }
 
 button:disabled {
-  background-color: #b0c8e1;
+  background-color: #ffc2c2;
   cursor: not-allowed;
 }
 
-/* ================================
-   📋 Tablas
-   ================================ */
+button.secondary {
+  background-color: var(--dav-yellow);
+  color: var(--dav-text);
+}
+
+/* ======================================================
+   📋 TABLAS
+   ====================================================== */
 
 table {
   width: 100%;
   border-collapse: collapse;
-  border: 1px solid var(--sap-border);
-  background-color: var(--sap-surface);
-  box-shadow: 0 1px 3px var(--sap-shadow);
+  margin-top: 15px;
+  background-color: var(--dav-surface);
+  box-shadow: 0 1px 3px var(--dav-shadow);
+  border-radius: var(--dav-radius);
+  overflow: hidden;
 }
 
 th, td {
-  border: 1px solid var(--sap-border);
+  border: 1px solid var(--dav-border);
   padding: 0.6rem;
   text-align: left;
 }
 
 th {
-  background-color: var(--sap-surface-alt);
-  color: var(--sap-text-muted);
-  font-weight: 500;
+  background: var(--dav-surface-alt);
+  color: var(--dav-text-muted);
+  text-transform: uppercase;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 tr:hover {
-  background-color: #eaf3fc;
+  background-color: #ffe6e6;
 }
 
-/* ================================
-   🧾 Formularios
-   ================================ */
+/* ======================================================
+   🧾 FORMULARIOS
+   ====================================================== */
 
-input, textarea, select {
-  border: 1px solid var(--sap-border);
-  border-radius: 3px;
-  padding: 0.4rem 0.6rem;
-  background-color: var(--sap-surface);
-  color: var(--sap-text);
+input,
+select,
+textarea {
+  border: 1px solid var(--dav-border);
+  border-radius: var(--dav-radius);
+  padding: 0.45rem 0.6rem;
+  font-size: 14px;
   width: 100%;
-  box-sizing: border-box;
-  transition: border-color 0.2s ease-in-out, box-shadow 0.2s;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-input:focus, textarea:focus, select:focus {
+input:focus,
+select:focus,
+textarea:focus {
   outline: none;
-  border-color: var(--sap-primary);
-  box-shadow: 0 0 0 2px rgba(10, 110, 209, 0.15);
+  border-color: var(--dav-red);
+  box-shadow: 0 0 0 2px rgba(237, 28, 39, 0.2);
 }
 
-/* ================================
-   🧱 Tarjetas y contenedores
-   ================================ */
+/* ======================================================
+   🧱 TARJETAS
+   ====================================================== */
 
 .card {
-  background-color: var(--sap-surface);
-  border: 1px solid var(--sap-border);
-  border-radius: 6px;
+  background: var(--dav-surface);
+  border: 1px solid var(--dav-border);
+  border-radius: var(--dav-radius);
   padding: 1rem;
-  box-shadow: 0 1px 3px var(--sap-shadow);
+  box-shadow: 0 1px 3px var(--dav-shadow);
 }
 
-/* ================================
-   🩵 Scrollbar (estilo SAP)
-   ================================ */
+/* ======================================================
+   🩵 SCROLLBAR ESTILO DAVIVIENDA
+   ====================================================== */
 
 ::-webkit-scrollbar {
   width: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: var(--sap-border);
-  border-radius: 5px;
+  background: var(--dav-red);
+  border-radius: 6px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: #b5bcc5;
+  background: var(--dav-red-dark);
+}
+
+
+/* ======================================================
+   MENU GRIS DAVIVIENDA (COPIA EXACTA)
+   ====================================================== */
+
+.menu-tabs {
+  background: #d1d1d1; /* gris real */
+  height: 60px;
+  display: flex;
+  align-items: center;
+  padding-left: 45px;
+  gap: 18px;
+
+  /* Esta forma ovalada es CLAVE */
+  border-radius: 50px;
+  margin: 0 auto;
+  width: calc(100% - 80px);
+  margin-top: -22px; /* sube la barra gris dentro del rojo */
+  border: 1px solid #c8c8c8;
+}
+
+/* items */
+.menu-item {
+  padding: 14px 22px;      /* padding real Davivienda */
+  border-radius: 6px;
+  background: transparent;
+  font-weight: 600;
+  color: #5a5a5a;
+  font-size: 14px;
+  transition: background 0.2s ease;
+}
+
+/* hover */
+.menu-item:hover {
+  background: white;
+}
+
+/* item activo (primer tab) */
+.menu-item-active {
+  background: white;
+  color: #333;
+  border-bottom: 2px solid #ed1c27;
+}
+
+/* Barra Roja superior */
+.top-red-bar {
+  background: #ed1c27;
+  height: 85px;
+  border-bottom-left-radius: 60px;
+  border-bottom-right-radius: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 45px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.16);
 }
