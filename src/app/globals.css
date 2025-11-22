@@ -1,0 +1,151 @@
+@import "tailwindcss";
+
+/* ================================
+   🎨 Paleta SAP Light (Fiori 3)
+   ================================ */
+
+:root {
+  /* Colores principales */
+  --sap-primary: #0a6ed1;         /* Azul corporativo SAP */
+  --sap-primary-hover: #085ca0;   /* Azul más oscuro al pasar el mouse */
+  --sap-accent: #107e3e;          /* Verde para acciones secundarias */
+  --sap-border: #d1d8e0;          /* Gris claro para bordes */
+  --sap-surface: #ffffff;         /* Fondo principal */
+  --sap-surface-alt: #f5f7fa;     /* Fondos secundarios */
+  --sap-text: #1a1a1a;            /* Texto principal */
+  --sap-text-muted: #5a5a5a;      /* Texto secundario */
+  --sap-shadow: rgba(0, 0, 0, 0.08);
+}
+
+@theme inline {
+  --color-background: var(--sap-surface);
+  --color-foreground: var(--sap-text);
+  --font-sans: "72", "Segoe UI", "Arial", sans-serif;
+}
+
+/* ================================
+   ✨ Estilos base
+   ================================ */
+
+body {
+  background-color: var(--sap-surface);
+  color: var(--sap-text);
+  font-family: "72", "Segoe UI", Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
+  padding: 0;
+}
+
+/* ================================
+   🧭 Encabezados
+   ================================ */
+
+h1, h2, h3, h4, h5 {
+  color: var(--sap-primary);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+/* ================================
+   🔘 Botones
+   ================================ */
+
+button {
+  background-color: var(--sap-primary);
+  color: white;
+  border-radius: 4px;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out, box-shadow 0.2s;
+  box-shadow: 0 1px 3px var(--sap-shadow);
+}
+
+button:hover {
+  background-color: var(--sap-primary-hover);
+  box-shadow: 0 2px 4px var(--sap-shadow);
+}
+
+button:disabled {
+  background-color: #b0c8e1;
+  cursor: not-allowed;
+}
+
+/* ================================
+   📋 Tablas
+   ================================ */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--sap-border);
+  background-color: var(--sap-surface);
+  box-shadow: 0 1px 3px var(--sap-shadow);
+}
+
+th, td {
+  border: 1px solid var(--sap-border);
+  padding: 0.6rem;
+  text-align: left;
+}
+
+th {
+  background-color: var(--sap-surface-alt);
+  color: var(--sap-text-muted);
+  font-weight: 500;
+}
+
+tr:hover {
+  background-color: #eaf3fc;
+}
+
+/* ================================
+   🧾 Formularios
+   ================================ */
+
+input, textarea, select {
+  border: 1px solid var(--sap-border);
+  border-radius: 3px;
+  padding: 0.4rem 0.6rem;
+  background-color: var(--sap-surface);
+  color: var(--sap-text);
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--sap-primary);
+  box-shadow: 0 0 0 2px rgba(10, 110, 209, 0.15);
+}
+
+/* ================================
+   🧱 Tarjetas y contenedores
+   ================================ */
+
+.card {
+  background-color: var(--sap-surface);
+  border: 1px solid var(--sap-border);
+  border-radius: 6px;
+  padding: 1rem;
+  box-shadow: 0 1px 3px var(--sap-shadow);
+}
+
+/* ================================
+   🩵 Scrollbar (estilo SAP)
+   ================================ */
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--sap-border);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #b5bcc5;
+}

@@ -1,0 +1,34 @@
+import { NextResponse } from "next/server"
+import { prisma } from "../../../../lib/prisma.js"
+
+// Actualizar módulo
+export async function PATCH(req, { params }) {
+  try {
+    const { id } = params
+    const body = await req.json()
+    const actualizado = await prisma.modulo.update({
+      where: { id: Number(id) },
+      data: {
+        nombre: body.nombre,
+        descripcion: body.descripcion,
+        estado: body.estado || "ACTIVO",
+      },
+    })
+    return NextResponse.json(actualizado)
+  } catch (error) {
+    console.error("❌ Error PATCH /modulos/api/[id]:", error)
+    return NextResponse.json({ error: "Error al actualizar módulo" }, { status: 500 })
+  }
+}
+
+// Eliminar módulo
+export async function DELETE(_, { params }) {
+  try {
+    const { id } = params
+    await prisma.modulo.delete({ where: { id: Number(id) } })
+    return NextResponse.json({ ok: true })
+  } catch (error) {
+    console.error("❌ Error DELETE /modulos/api/[id]:", error)
+    return NextResponse.json({ error: "Error al eliminar módulo" }, { status: 500 })
+  }
+}
