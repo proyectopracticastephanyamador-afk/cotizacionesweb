@@ -23,9 +23,7 @@ const MENU = [
     label: "Cotización",
     children: [
       { id: "cotizaciones", label: "Cotizaciones" },
-      { id: "regimenes", label: "Regímenes laborales" },
-      { id: "entes", label: "Entes de deducción" },
-      { id: "parametros", label: "Parámetros del sistema" },
+
       { id: "reportes", label: "Reportes" },
     ]
   },
@@ -34,9 +32,10 @@ const MENU = [
     id: "configuracion",
     label: "Configuración",
     children: [
-      { id: "parametros-globales", label: "Parámetros globales" },
-      { id: "catalogos", label: "Catálogos" },
-      { id: "tasas", label: "Actualización de tasas" },
+      { id: "entes", label: "Entes de deducción" },
+      { id: "configuraciones", label: "Parámetros globales" },
+      { id: "isr", label: "Impuesto sobre la Renta" },
+      { id: "regimenes", label: "Regímenes laborales" },
     ]
   },
 
@@ -118,7 +117,7 @@ const [openMenu, setOpenMenu] = useState<string | null>(null);
 
 
         {/* CONTENIDO */}
-        <main style={{ padding: "0px 64px 64px 64px", marginTop: "4px" }}>
+        <main style={{ padding: "0px 64px 64px 64px", marginTop: "4px",border: "8px", borderBlock: "white" }}>
           {children}
         </main>
 
