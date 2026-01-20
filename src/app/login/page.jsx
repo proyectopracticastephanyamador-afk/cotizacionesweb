@@ -41,17 +41,21 @@ export default function LoginPage() {
       </div>
 
       {/* CUERPO */}
-      <div
-        className="flex flex-1 items-center justify-center p-6"
-        style={{ background: "var(--dav-red)" }}
-      >
+      <div className="flex flex-1 items-center justify-center p-6">
         <form
           onSubmit={handleLogin}
-          className="bg-white p-6 rounded shadow w-[380px] space-y-4"
+          className="bg-white p-6 rounded shadow w-[420px] space-y-4"
         >
-          <h1 className="text-xl font-semibold text-center">
-            Iniciar sesión
+
+          {/* TÍTULO DEL SISTEMA */}
+          <h1 className="text-lg font-bold text-center">
+            Sistema de Cotización y Rentas de Honduras
           </h1>
+
+          {/* SUBTÍTULO */}
+          <h2 className="text-md font-semibold text-center text-gray-600">
+            Iniciar sesión
+          </h2>
 
           <input
             className="border p-2 rounded w-full"
