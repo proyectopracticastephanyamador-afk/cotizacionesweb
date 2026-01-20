@@ -1,7 +1,30 @@
 import { NextResponse } from "next/server"
 import bcrypt from "bcryptjs"
-import { prisma } from "../../../lib/prisma.js"
+import { prisma } from "@/lib/prisma"
 
+// ======================================================
+// GET → Listar usuarios
+// ======================================================
+export async function GET() {
+  try {
+    const usuarios = await prisma.usuario.findMany({
+      include: { rol: true },
+      orderBy: { id: "desc" },
+    })
+
+    return NextResponse.json(usuarios)
+  } catch (error) {
+    console.error("❌ Error GET /usuarios/api", error)
+    return NextResponse.json(
+      { error: "Error obteniendo usuarios" },
+      { status: 500 }
+    )
+  }
+}
+
+// ======================================================
+// POST → Crear usuario
+// ======================================================
 export async function POST(req) {
   try {
     const body = await req.json()
@@ -20,7 +43,7 @@ export async function POST(req) {
 
     await prisma.bitacora.create({
       data: {
-        usuarioId: 1, // 🧩 el admin que lo creó (ajustar según sesión)
+        usuarioId: 1,
         accion: "CREACIÓN DE USUARIO",
         modulo: "Usuarios",
         descripcion: `Usuario ${nuevo.email} creado con rol ${nuevo.rol.nombre}`,
@@ -29,7 +52,10 @@ export async function POST(req) {
 
     return NextResponse.json(nuevo)
   } catch (error) {
-    console.error("❌ Error POST /usuarios/api:", error)
-    return NextResponse.json({ error: "Error al crear usuario" }, { status: 500 })
+    console.error("❌ Error POST /usuarios/api", error)
+    return NextResponse.json(
+      { error: "Error al crear usuario" },
+      { status: 500 }
+    )
   }
 }

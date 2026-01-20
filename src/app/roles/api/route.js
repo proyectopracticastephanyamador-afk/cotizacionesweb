@@ -1,34 +1,45 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 
-// GET → Lista todos los regímenes
+// =======================================
+// GET → Listar roles
+// =======================================
 export async function GET() {
-  const items = await prisma.regimenLaboral.findMany({
-    orderBy: { id: "asc" }
-  })
-  return NextResponse.json(items)
+  try {
+    const roles = await prisma.rol.findMany({
+      orderBy: { id: "asc" },
+    })
+    return NextResponse.json(roles)
+  } catch (error) {
+    console.error("❌ Error GET /roles/api", error)
+    return NextResponse.json(
+      { error: "Error obteniendo roles" },
+      { status: 500 }
+    )
+  }
 }
 
-// POST → Crear un nuevo régimen
+// =======================================
+// POST → Crear rol
+// =======================================
 export async function POST(req) {
   try {
     const body = await req.json()
 
-    const nuevo = await prisma.regimenLaboral.create({
+    const nuevo = await prisma.rol.create({
       data: {
         nombre: body.nombre,
-        aplicaIHSS: Boolean(body.aplicaIHSS),
-        aplicaRAP: Boolean(body.aplicaRAP),
-        aplicaISR: Boolean(body.aplicaISR),
-        aplicaINJUPEMP: Boolean(body.aplicaINJUPEMP),
-        aplicaIMPREMA: Boolean(body.aplicaIMPREMA),
+        descripcion: body.descripcion,
         estado: body.estado || "ACTIVO",
-      }
+      },
     })
 
     return NextResponse.json(nuevo)
-  } catch (err) {
-    console.error(err)
-    return NextResponse.json({ error: "Error creando régimen" }, { status: 500 })
+  } catch (error) {
+    console.error("❌ Error POST /roles/api", error)
+    return NextResponse.json(
+      { error: "Error creando rol" },
+      { status: 500 }
+    )
   }
 }
