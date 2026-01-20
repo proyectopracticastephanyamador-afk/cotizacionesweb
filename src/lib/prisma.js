@@ -1,4 +1,4 @@
-import { PrismaClient } from "../generated/prisma/client.ts"
+import { PrismaClient } from "@prisma/client"
 
 const globalForPrisma = globalThis
 
@@ -8,4 +8,6 @@ export const prisma =
     log: ["error", "warn"],
   })
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.prisma = prisma
+}
