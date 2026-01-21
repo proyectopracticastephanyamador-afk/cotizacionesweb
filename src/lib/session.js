@@ -1,26 +1,35 @@
-import { cookies } from "next/headers"
+import { SignJWT, jwtVerify } from "jose"
 
-const COOKIE_NAME = "sid"
+const COOKIE_NAME = "session"
+const SECRET = new TextEncoder().encode(process.env.SESSION_SECRET || process.env.JWT_SECRET)
 
-// ⚠️ Demo simple: guardamos userId en cookie
-// En producción, lo ideal es guardar un token/tabla de sesiones.
-export function setSession(userId) {
-  cookies().set(COOKIE_NAME, String(userId), {
+export async function setSessionCookie(res, payload) {
+  // payload: { id, rol, nombre } lo que quieras guardar
+  const token = await new SignJWT(payload)
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime("7d")
+    .sign(SECRET)
+
+  res.cookies.set({
+    name: COOKIE_NAME,
+    value: token,
     httpOnly: true,
+    secure: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
     path: "/",
-    maxAge: 60 * 60 * 24 * 7, // 7 días
+    maxAge: 60 * 60 * 24 * 7,
   })
 }
 
-export function clearSession() {
-  cookies().delete(COOKIE_NAME)
-}
-
-export function getSessionUserId() {
-  const v = cookies().get(COOKIE_NAME)?.value
-  if (!v) return null
-  const n = Number(v)
-  return Number.isFinite(n) ? n : null
+export function clearSessionCookie(res) {
+  res.cookies.set({
+    name: COOKIE_NAME,
+    value: "",
+    httpOnly: true,
+    secure: true,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 0,
+  })
 }

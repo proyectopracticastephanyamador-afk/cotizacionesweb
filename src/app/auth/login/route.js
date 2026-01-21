@@ -1,11 +1,16 @@
+export const runtime = "nodejs"
+
 import { NextResponse } from "next/server"
 import bcrypt from "bcryptjs"
+import jwt from "jsonwebtoken"
 import { prisma } from "@/lib/prisma"
-import { setSession } from "@/lib/session"
 
 export async function POST(req) {
   try {
-    const { email, password } = await req.json()
+    let { email, password } = await req.json()
+
+    email = String(email || "").trim().toLowerCase()
+    password = String(password || "")
 
     if (!email || !password) {
       return NextResponse.json({ error: "Email y password requeridos" }, { status: 400 })
@@ -25,18 +30,22 @@ export async function POST(req) {
       return NextResponse.json({ error: "Credenciales inválidas" }, { status: 401 })
     }
 
-    // ✅ Crear sesión
-    setSession(user.id)
+    if (!process.env.JWT_SECRET) {
+      return NextResponse.json({ error: "JWT_SECRET no configurado" }, { status: 500 })
+    }
 
-    // Respuesta segura (sin password)
+    const token = jwt.sign(
+      { id: user.id, rol: user.rol?.nombre },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    )
+
     return NextResponse.json({
-      id: user.id,
-      nombre: user.nombre,
-      email: user.email,
-      rol: user.rol?.nombre,
+      token,
+      usuario: { id: user.id, nombre: user.nombre, email: user.email, rol: user.rol?.nombre },
     })
-  } catch (error) {
-    console.error("❌ /auth/login", error)
-    return NextResponse.json({ error: "Error en login" }, { status: 500 })
+  } catch (err) {
+    console.error("❌ /auth/login-mobile", err)
+    return NextResponse.json({ error: "Error autenticando" }, { status: 500 })
   }
 }
