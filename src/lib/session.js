@@ -1,10 +1,10 @@
 import { cookies } from "next/headers"
 import jwt from "jsonwebtoken"
 
-const SESSION_COOKIE = "session"
+const SESSION_COOKIE = "session_token"
 
 /**
- * Crear sesión (login)
+ * Crea sesión WEB (cookie httpOnly)
  */
 export function setSession(userId) {
   const token = jwt.sign(
@@ -22,26 +22,49 @@ export function setSession(userId) {
 }
 
 /**
- * Obtener ID de usuario desde la sesión
+ * Lee usuario autenticado desde cookie
  */
 export function getSessionUserId() {
   const token = cookies().get(SESSION_COOKIE)?.value
   if (!token) return null
 
   try {
-    const decoded = jwt.verify(token, process.env.SESSION_SECRET)
-    return decoded.userId
+    const payload = jwt.verify(token, process.env.SESSION_SECRET)
+    return payload.userId
   } catch {
     return null
   }
 }
 
 /**
- * Cerrar sesión (logout)
+ * Cierra sesión WEB
  */
 export function clearSessionCookie() {
-  cookies().set(SESSION_COOKIE, "", {
-    maxAge: 0,
-    path: "/",
-  })
+  cookies().delete(SESSION_COOKIE)
+}
+
+/**
+ * 🔐 Login MOBILE (Bearer Token)
+ */
+export function createMobileToken(user) {
+  return jwt.sign(
+    {
+      id: user.id,
+      email: user.email,
+      rol: user.rol?.nombre,
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: "7d" }
+  )
+}
+
+/**
+ * 🔐 Verifica token MOBILE
+ */
+export function verifyMobileToken(token) {
+  try {
+    return jwt.verify(token, process.env.JWT_SECRET)
+  } catch {
+    return null
+  }
 }
