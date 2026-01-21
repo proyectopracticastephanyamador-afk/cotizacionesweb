@@ -1,35 +1,47 @@
-import { SignJWT, jwtVerify } from "jose"
+import { cookies } from "next/headers"
+import jwt from "jsonwebtoken"
 
-const COOKIE_NAME = "session"
-const SECRET = new TextEncoder().encode(process.env.SESSION_SECRET || process.env.JWT_SECRET)
+const SESSION_COOKIE = "session"
 
-export async function setSessionCookie(res, payload) {
-  // payload: { id, rol, nombre } lo que quieras guardar
-  const token = await new SignJWT(payload)
-    .setProtectedHeader({ alg: "HS256" })
-    .setIssuedAt()
-    .setExpirationTime("7d")
-    .sign(SECRET)
+/**
+ * Crear sesión (login)
+ */
+export function setSession(userId) {
+  const token = jwt.sign(
+    { userId },
+    process.env.SESSION_SECRET,
+    { expiresIn: "1d" }
+  )
 
-  res.cookies.set({
-    name: COOKIE_NAME,
-    value: token,
+  cookies().set(SESSION_COOKIE, token, {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
-    maxAge: 60 * 60 * 24 * 7,
   })
 }
 
-export function clearSessionCookie(res) {
-  res.cookies.set({
-    name: COOKIE_NAME,
-    value: "",
-    httpOnly: true,
-    secure: true,
-    sameSite: "lax",
-    path: "/",
+/**
+ * Obtener ID de usuario desde la sesión
+ */
+export function getSessionUserId() {
+  const token = cookies().get(SESSION_COOKIE)?.value
+  if (!token) return null
+
+  try {
+    const decoded = jwt.verify(token, process.env.SESSION_SECRET)
+    return decoded.userId
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Cerrar sesión (logout)
+ */
+export function clearSessionCookie() {
+  cookies().set(SESSION_COOKIE, "", {
     maxAge: 0,
+    path: "/",
   })
 }
