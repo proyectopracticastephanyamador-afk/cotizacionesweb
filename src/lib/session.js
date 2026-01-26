@@ -3,68 +3,53 @@ import jwt from "jsonwebtoken"
 
 const SESSION_COOKIE = "session_token"
 
-/**
- * Crea sesión WEB (cookie httpOnly)
- */
-export function setSession(userId) {
+/* =========================
+   SESIÓN WEB (COOKIE)
+========================= */
+
+export async function setSession(userId) {
+  if (!process.env.SESSION_SECRET) {
+    throw new Error("SESSION_SECRET no configurado")
+  }
+
   const token = jwt.sign(
     { userId },
     process.env.SESSION_SECRET,
     { expiresIn: "1d" }
   )
 
-  cookies().set(SESSION_COOKIE, token, {
+  const cookieStore = await cookies()
+  cookieStore.set(SESSION_COOKIE, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
+    maxAge: 60 * 60 * 24,
   })
 }
 
-/**
- * Lee usuario autenticado desde cookie
- */
-export function getSessionUserId() {
-  const token = cookies().get(SESSION_COOKIE)?.value
+export async function getSessionUserId() {
+  const cookieStore = await cookies()
+  const token = cookieStore.get(SESSION_COOKIE)?.value
   if (!token) return null
 
   try {
     const payload = jwt.verify(token, process.env.SESSION_SECRET)
-    return payload.userId
-  } catch {
+
+    const id = Number(payload.userId)
+    if (!Number.isInteger(id)) return null
+
+    return id
+  } catch (e) {
+    console.error("❌ JWT inválido:", e.message)
     return null
   }
 }
 
-/**
- * Cierra sesión WEB
- */
-export function clearSessionCookie() {
-  cookies().delete(SESSION_COOKIE)
+export async function clearSessionCookie() {
+  const cookieStore = await cookies()
+  cookieStore.delete(SESSION_COOKIE)
 }
 
-/**
- * 🔐 Login MOBILE (Bearer Token)
- */
-export function createMobileToken(user) {
-  return jwt.sign(
-    {
-      id: user.id,
-      email: user.email,
-      rol: user.rol?.nombre,
-    },
-    process.env.JWT_SECRET,
-    { expiresIn: "7d" }
-  )
-}
-
-/**
- * 🔐 Verifica token MOBILE
- */
-export function verifyMobileToken(token) {
-  try {
-    return jwt.verify(token, process.env.JWT_SECRET)
-  } catch {
-    return null
-  }
-}
+/* Alias caja negra */
+export const clearSession = clearSessionCookie

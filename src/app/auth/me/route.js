@@ -4,13 +4,17 @@ import { getSessionUserId } from "@/lib/session"
 
 export async function GET() {
   try {
-    const userId = getSessionUserId()
+    // ✅ SIEMPRE await
+    const userId = await getSessionUserId()
+
     if (!userId) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 })
     }
 
+    console.log("User ID from session:", userId, typeof userId)
+
     const user = await prisma.usuario.findUnique({
-      where: { id: userId },
+      where: { id: userId }, // ✅ DIRECTO, SIN .value
       include: { rol: true },
     })
 
