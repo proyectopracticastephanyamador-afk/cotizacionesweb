@@ -8,10 +8,6 @@ const SESSION_COOKIE = "session_token"
 ========================= */
 
 export async function setSession(userId) {
-  if (!process.env.SESSION_SECRET) {
-    throw new Error("SESSION_SECRET no configurado")
-  }
-
   const token = jwt.sign(
     { userId },
     process.env.SESSION_SECRET,
@@ -24,7 +20,6 @@ export async function setSession(userId) {
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
-    maxAge: 60 * 60 * 24,
   })
 }
 
@@ -40,8 +35,7 @@ export async function getSessionUserId() {
     if (!Number.isInteger(id)) return null
 
     return id
-  } catch (e) {
-    console.error("❌ JWT inválido:", e.message)
+  } catch {
     return null
   }
 }
@@ -51,5 +45,5 @@ export async function clearSessionCookie() {
   cookieStore.delete(SESSION_COOKIE)
 }
 
-/* Alias caja negra */
+/* 🔁 Alias (NO CAMBIAR) */
 export const clearSession = clearSessionCookie
