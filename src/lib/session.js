@@ -1,7 +1,23 @@
 import { cookies } from "next/headers"
 import jwt from "jsonwebtoken"
 
-const SESSION_COOKIE = "session_token"
+export const SESSION_COOKIE = "session_token"
+
+function getCookieSameSite() {
+  const env = String(process.env.COOKIE_SAMESITE || "").trim().toLowerCase()
+  if (env === "lax" || env === "strict" || env === "none") return env
+  return "lax"
+}
+
+export function getSessionCookieOptions() {
+  return {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: getCookieSameSite(),
+    path: "/",
+    maxAge: 60 * 60 * 24, // 1 día
+  }
+}
 
 /* =========================
    SESIÓN WEB (COOKIE)
@@ -15,12 +31,7 @@ export async function setSession(userId) {
   )
 
   const cookieStore = await cookies()
-  cookieStore.set(SESSION_COOKIE, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-  })
+  cookieStore.set(SESSION_COOKIE, token, getSessionCookieOptions())
 }
 
 export async function getSessionUserId() {
@@ -42,7 +53,7 @@ export async function getSessionUserId() {
 
 export async function clearSessionCookie() {
   const cookieStore = await cookies()
-  cookieStore.delete(SESSION_COOKIE)
+  cookieStore.delete(SESSION_COOKIE, { path: "/" })
 }
 
 /* 🔁 Alias (NO CAMBIAR) */

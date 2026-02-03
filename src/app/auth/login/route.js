@@ -4,8 +4,8 @@ import { NextResponse } from "next/server"
 import bcrypt from "bcryptjs"
 import jwt from "jsonwebtoken"
 import { prisma } from "@/lib/prisma"
+import { SESSION_COOKIE, getSessionCookieOptions } from "@/lib/session"
 
-const SESSION_COOKIE = "session_token"
 
 export async function POST(req) {
   try {
@@ -51,13 +51,7 @@ export async function POST(req) {
     })
 
     // ✅ aquí SÍ se guarda la cookie (Next 16)
-    res.cookies.set(SESSION_COOKIE, sessionToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-      maxAge: 60 * 60 * 24, // 1 día
-    })
+    res.cookies.set(SESSION_COOKIE, sessionToken, getSessionCookieOptions())
 
     return res
   } catch (err) {

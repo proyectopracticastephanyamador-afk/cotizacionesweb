@@ -1,20 +1,19 @@
+export const runtime = "nodejs"
+
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getSessionUserId } from "@/lib/session"
 
 export async function GET() {
   try {
-    // ✅ SIEMPRE await
     const userId = await getSessionUserId()
 
     if (!userId) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 })
     }
 
-    console.log("User ID from session:", userId, typeof userId)
-
     const user = await prisma.usuario.findUnique({
-      where: { id: userId }, // ✅ DIRECTO, SIN .value
+      where: { id: userId },
       include: { rol: true },
     })
 
