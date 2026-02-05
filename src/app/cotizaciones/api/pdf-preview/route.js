@@ -1,16 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-const ANIO_VIGENTE = new Date().getFullYear();
-
 /* ============================================================
-   UTILIDADES DE CONFIGURACIÓN
+   UTILIDADES DE CONFIGURACIÓN (copiadas del endpoint principal)
    ============================================================ */
 
-/**
- * Obtiene una configuración de deducción para un ente, año y subTipo
- * (TRABAJADOR, EMPLEADOR, etc.) que NO esté eliminada.
- */
 async function getConfigDeduccion(enteNombre, subTipo = "TRABAJADOR") {
   return prisma.configuracionDeduccion.findFirst({
     where: {
@@ -24,9 +18,6 @@ async function getConfigDeduccion(enteNombre, subTipo = "TRABAJADOR") {
   });
 }
 
-/**
- * Obtiene el TECHO para un ente en el año vigente.
- */
 async function getTechoDeduccion(enteNombre) {
   return prisma.configuracionDeduccion.findFirst({
     where: {
@@ -40,25 +31,9 @@ async function getTechoDeduccion(enteNombre) {
   });
 }
 
-/**
- * Calcula una deducción genérica para un ente dado, siguiendo el flujo:
- * 1. Verificar tipo (MONTO_FIJO, PORCENTAJE, TECHO)
- * 2. Si es PORCENTAJE → verificar si tiene TECHO
- * 3. Aplicar según subTipo (TRABAJADOR en este módulo)
- * 4. Si no hay config → todo en 0
- *
- * Retorna:
- * {
- *   base,
- *   porcentaje,
- *   techoAplicado,
- *   monto
- * }
- */
 async function calcularDeduccionEnte(enteNombre, salario, subTipo = "TRABAJADOR") {
   const config = await getConfigDeduccion(enteNombre, subTipo);
 
-  // Si no hay configuración → 0 en todo
   if (!config) {
     return {
       base: 0,
@@ -68,9 +43,8 @@ async function calcularDeduccionEnte(enteNombre, salario, subTipo = "TRABAJADOR"
     };
   }
 
-  const tipo = config.tipo; // PORCENTAJE | TECHO | MONTO_FIJO
+  const tipo = config.tipo;
 
-  // MONTO FIJO → no depende de salario
   if (tipo === "MONTO_FIJO") {
     const montoFijo = Number(config.montoFijo || 0);
     return {
@@ -81,13 +55,12 @@ async function calcularDeduccionEnte(enteNombre, salario, subTipo = "TRABAJADOR"
     };
   }
 
-  // PORCENTAJE → puede tener techo
   if (tipo === "PORCENTAJE") {
     const techoConfig = await getTechoDeduccion(enteNombre);
     const baseBruta = Number(salario);
     const techo = techoConfig?.techo ? Number(techoConfig.techo) : baseBruta;
     const baseAplicada = Math.min(baseBruta, techo);
-    const porcentaje = Number(config.porcentaje || 0); // ej. 0.04, 0.015, 0.085, etc.
+    const porcentaje = Number(config.porcentaje || 0);
     const monto = baseAplicada * porcentaje;
 
     return {
@@ -98,7 +71,6 @@ async function calcularDeduccionEnte(enteNombre, salario, subTipo = "TRABAJADOR"
     };
   }
 
-  // TECHO solo como registro de referencia → no se descuenta nada directamente
   return {
     base: 0,
     porcentaje: 0,
@@ -107,17 +79,6 @@ async function calcularDeduccionEnte(enteNombre, salario, subTipo = "TRABAJADOR"
   };
 }
 
-/**
- * Calcula el ISR mensual con detalle por tramos, basado en TramoISR
- * para el año vigente, estado != ELIMINADO.
- *
- * Retorna:
- * {
- *   anual,
- *   tramosAplicados: [{ base, porcentaje, monto }],
- *   monto
- * }
- */
 async function calcularISRDetalle(salarioBruto) {
   const tramos = await prisma.tramoISR.findMany({
     where: { estado: "ACTIVO" },
@@ -145,7 +106,7 @@ async function calcularISRDetalle(salarioBruto) {
   const tramo = tramos[idx];
   const limInf = Number(tramo.desde);
   const limSup = tramo.hasta ? Number(tramo.hasta) : Infinity;
-  const porcentaje = Number(tramo.porcentaje); // Ej: 0.15
+  const porcentaje = Number(tramo.porcentaje);
 
   const baseExenta =
     idx > 0 && tramos[idx - 1].hasta != null
@@ -171,17 +132,6 @@ async function calcularISRDetalle(salarioBruto) {
   };
 }
 
-
-/**
- * Calcula todas las deducciones de la cotización según el régimen laboral:
- * - IHSS
- * - RAP
- * - INJUPEMP
- * - IMPREMA
- * - ISR
- *
- * Usa únicamente la configuración de BD (ConfiguracionDeduccion, TramoISR).
- */
 async function calcularDeducciones(regimen, salarioBruto) {
   const salario = Number(salarioBruto);
 
@@ -194,7 +144,6 @@ async function calcularDeducciones(regimen, salarioBruto) {
   };
   const warnings = [];
 
-  // IHSS
   if (regimen.aplicaIHSS) {
     detalle.ihss = await calcularDeduccionEnte("IHSS", salario, "TRABAJADOR");
     if (detalle.ihss.monto === 0 && detalle.ihss.porcentaje === 0) {
@@ -202,7 +151,6 @@ async function calcularDeducciones(regimen, salarioBruto) {
     }
   }
 
-  // RAP
   if (regimen.aplicaRAP) {
     detalle.rap = await calcularDeduccionEnte("RAP", salario, "TRABAJADOR");
     if (detalle.rap.monto === 0 && detalle.rap.porcentaje === 0) {
@@ -210,7 +158,6 @@ async function calcularDeducciones(regimen, salarioBruto) {
     }
   }
 
-  // INJUPEMP
   if (regimen.aplicaINJUPEMP) {
     detalle.injupemp = await calcularDeduccionEnte("INJUPEMP", salario, "TRABAJADOR");
     if (detalle.injupemp.monto === 0 && detalle.injupemp.porcentaje === 0) {
@@ -218,7 +165,6 @@ async function calcularDeducciones(regimen, salarioBruto) {
     }
   }
 
-  // IMPREMA
   if (regimen.aplicaIMPREMA) {
     detalle.imprema = await calcularDeduccionEnte("IMPREMA", salario, "TRABAJADOR");
     if (detalle.imprema.monto === 0 && detalle.imprema.porcentaje === 0) {
@@ -226,7 +172,6 @@ async function calcularDeducciones(regimen, salarioBruto) {
     }
   }
 
-  // ISR
   if (regimen.aplicaISR) {
     detalle.isr = await calcularISRDetalle(salario);
     if (!detalle.isr.tramosAplicados.length) {
@@ -234,7 +179,6 @@ async function calcularDeducciones(regimen, salarioBruto) {
     }
   }
 
-  // Total deducciones: suma de todos los montos no nulos
   const totalDeducciones = Object.values(detalle)
     .filter((d) => d && typeof d.monto === "number")
     .reduce((acc, d) => acc + d.monto, 0);
@@ -250,20 +194,9 @@ async function calcularDeducciones(regimen, salarioBruto) {
 }
 
 /* ============================================================
-   ENDPOINTS
+   ENDPOINT
    ============================================================ */
 
-// GET – listar cotizaciones con su régimen
-export async function GET() {
-  const data = await prisma.cotizacion.findMany({
-    include: { regimen: true },
-    orderBy: { id: "desc" },
-  });
-
-  return NextResponse.json(data);
-}
-
-// POST – crear cotización o solo preview (preview = true)
 export async function POST(req) {
   try {
     const body = await req.json();
@@ -287,42 +220,29 @@ export async function POST(req) {
       );
     }
 
-    // Calcular deducciones y detalle según configuración
     const { detalle, totalDeducciones, salarioNeto, warnings } =
       await calcularDeducciones(regimen, salarioBruto);
 
-    // Si es preview → no guarda en BD, solo devuelve detalle
-    if (body.preview) {
-      return NextResponse.json({
-        ok: true,
-        detalle,
+    const empleadoNombre = body.empleadoNombre || "(sin nombre)";
+
+    const respuesta = {
+      titulo: "Detalle de Cotización Laboral",
+      encabezado: {
+        empleado: empleadoNombre,
+        salarioBruto: salarioBruto,
+        regimen: regimen.nombre,
+      },
+      detalle,
+      resumen: {
         totalDeducciones,
         salarioNeto,
-        warnings,
-      });
-    }
-
-    // Crear cotización REAL en BD (solo totales)
-    const nueva = await prisma.cotizacion.create({
-      data: {
-        empleadoNombre: body.empleadoNombre,
-        salarioBruto: salarioBruto,
-        regimenId: regimen.id,
-        totalDeducciones: totalDeducciones,
-        salarioNeto: salarioNeto,
       },
-      include: {
-        regimen: true,
-      },
-    });
-
-    return NextResponse.json({
-      ...nueva,
-      detalle, // se devuelve para que el front muestre el modal/PDF
       warnings,
-    });
+    };
+
+    return NextResponse.json(respuesta);
   } catch (error) {
-    console.error("Error en cotización:", error);
+    console.error("Error en pdf-preview:", error);
     return NextResponse.json(
       { error: "Error al calcular cotización" },
       { status: 500 }

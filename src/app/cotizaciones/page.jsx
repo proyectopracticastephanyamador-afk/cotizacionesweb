@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import autoTable from "jspdf-autotable";
 
 export default function CotizacionesPage() {
   const [regimenes, setRegimenes] = useState([]);
@@ -164,7 +165,8 @@ export default function CotizacionesPage() {
 
 
 
-const generarPDF = (detalle, form) => {
+const generarPDF = (detalle, resumen) => {
+  if (!detalle || !resumen) return;
   const pdf = new jsPDF({
     unit: "pt",
     format: "letter"
@@ -184,9 +186,8 @@ const generarPDF = (detalle, form) => {
 
   pdf.setFontSize(12);
   pdf.setTextColor(0, 0, 0);
-  //pdf.text(`Empleado: ${form.empleadoNombre}`, 30, 90);
-  pdf.text(`Empleado: Test`, 30, 90);
-  pdf.text(`Salario Bruto: L ${Number(form.salarioBruto).toFixed(2)}`, 30, 110);
+  pdf.text(`Empleado: ${resumen.empleadoNombre}`, 30, 90);
+  pdf.text(`Salario Bruto: L ${Number(resumen.salarioBruto).toFixed(2)}`, 30, 110);
 
   let startY = 140;
 
@@ -300,8 +301,8 @@ const generarPDF = (detalle, form) => {
   pdf.setFontSize(14);
   pdf.setTextColor(0, 0, 0);
 
-  pdf.text(`Total Deducciones: L ${detalle.totalDeducciones.toFixed(2)}`, 30, startY);
-  pdf.text(`Salario Neto: L ${detalle.salarioNeto.toFixed(2)}`, 30, startY + 20);
+  pdf.text(`Total Deducciones: L ${resumen.totalDeducciones.toFixed(2)}`, 30, startY);
+  pdf.text(`Salario Neto: L ${resumen.salarioNeto.toFixed(2)}`, 30, startY + 20);
 
   // ================================
   // Guardar PDF
@@ -540,6 +541,8 @@ const generarPDF = (detalle, form) => {
                 <div className="mb-3 text-sm">
                   <h3 className="font-semibold">ISR</h3>
                   <p>Renta anual: L {detalle.isr.anual.toFixed(2)}</p>
+                  <p>Exento: L {Number(detalle.isr.exento || 0).toFixed(2)}</p>
+                  <p>Gravable: L {Number(detalle.isr.gravable || 0).toFixed(2)}</p>
 
                   {Array.isArray(detalle.isr.tramosAplicados) &&
                     detalle.isr.tramosAplicados.map((t, i) => (
@@ -568,7 +571,7 @@ const generarPDF = (detalle, form) => {
               </button>
 
               <button
-                onClick={generarPDF}
+                onClick={() => generarPDF(detalle, detalleResumen)}
                 className="px-3 py-1 bg-blue-600 text-white rounded"
               >
                 Descargar PDF
