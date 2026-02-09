@@ -3,12 +3,19 @@ import { prisma } from "@/lib/prisma"
 
 // PATCH → actualizar configuración
 export async function PATCH(req, { params }) {
-  const { id } = params
+  const resolvedParams = await params
+  const rawId =
+    resolvedParams?.id ??
+    req?.nextUrl?.pathname?.split("/").filter(Boolean).pop()
+  const id = Number(rawId)
+  if (!Number.isFinite(id)) {
+    return NextResponse.json({ error: "Id inválido" }, { status: 400 })
+  }
   try {
     const body = await req.json()
 
     const updated = await prisma.configuracionDeduccion.update({
-      where: { id: Number(id) },
+      where: { id },
       data: {
         anio: Number(body.anio),
         tipo: body.tipo,
@@ -29,10 +36,18 @@ export async function PATCH(req, { params }) {
 }
 
 // DELETE → eliminar (lógico)
-export async function DELETE(_, { params }) {
+export async function DELETE(req, { params }) {
   try {
+    const resolvedParams = await params
+    const rawId =
+      resolvedParams?.id ??
+      req?.nextUrl?.pathname?.split("/").filter(Boolean).pop()
+    const id = Number(rawId)
+    if (!Number.isFinite(id)) {
+      return NextResponse.json({ error: "Id inválido" }, { status: 400 })
+    }
     await prisma.configuracionDeduccion.update({
-      where: { id: Number(params.id) },
+      where: { id },
       data: { estado: "ELIMINADO" }
     })
     return NextResponse.json({ ok: true })
