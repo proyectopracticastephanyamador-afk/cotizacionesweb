@@ -7,7 +7,11 @@ import { prisma } from "@/lib/prisma"
 // ======================================================
 export async function PATCH(req, { params }) {
   try {
-    const id = Number(params.id)
+    const { id } = await params
+    const idNumber = Number(id)
+    if (Number.isNaN(idNumber)) {
+      return NextResponse.json({ error: "Id inválido" }, { status: 400 })
+    }
     const body = await req.json()
 
     const data = {
@@ -23,7 +27,7 @@ export async function PATCH(req, { params }) {
     }
 
     const updated = await prisma.usuario.update({
-      where: { id },
+      where: { id: idNumber },
       data,
       include: { rol: true },
     })
@@ -43,10 +47,14 @@ export async function PATCH(req, { params }) {
 // ======================================================
 export async function DELETE(_, { params }) {
   try {
-    const id = Number(params.id)
+    const { id } = await params
+    const idNumber = Number(id)
+    if (Number.isNaN(idNumber)) {
+      return NextResponse.json({ error: "Id inválido" }, { status: 400 })
+    }
 
     await prisma.usuario.update({
-      where: { id },
+      where: { id: idNumber },
       data: { estado: "INACTIVO" },
     })
 

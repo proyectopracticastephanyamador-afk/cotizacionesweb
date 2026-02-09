@@ -4,10 +4,14 @@ import { prisma } from "../../../../lib/prisma.js"
 // ✅ Actualizar permiso
 export async function PATCH(req, { params }) {
   try {
-    const { id } = params
+    const { id } = await params
+    const idNumber = Number(id)
+    if (Number.isNaN(idNumber)) {
+      return NextResponse.json({ error: "Id inválido" }, { status: 400 })
+    }
     const body = await req.json()
     const actualizado = await prisma.permiso.update({
-      where: { id: Number(id) },
+      where: { id: idNumber },
       data: {
         moduloId: Number(body.moduloId),
         puedeCrear: body.puedeCrear,
@@ -31,8 +35,12 @@ export async function PATCH(req, { params }) {
 // ✅ Eliminar permiso
 export async function DELETE(_, { params }) {
   try {
-    const { id } = params
-    await prisma.permiso.delete({ where: { id: Number(id) } })
+    const { id } = await params
+    const idNumber = Number(id)
+    if (Number.isNaN(idNumber)) {
+      return NextResponse.json({ error: "Id inválido" }, { status: 400 })
+    }
+    await prisma.permiso.delete({ where: { id: idNumber } })
     return NextResponse.json({ ok: true })
   } catch (error) {
     console.error("❌ Error DELETE /permisos/api/[id]:", error)

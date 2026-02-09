@@ -6,11 +6,15 @@ import { prisma } from "@/lib/prisma"
 // =======================================
 export async function PATCH(req, { params }) {
   try {
-    const id = Number(params.id)
+    const { id } = await params
+    const idNumber = Number(id)
+    if (Number.isNaN(idNumber)) {
+      return NextResponse.json({ error: "Id inválido" }, { status: 400 })
+    }
     const body = await req.json()
 
     const updated = await prisma.rol.update({
-      where: { id },
+      where: { id: idNumber },
       data: {
         nombre: body.nombre,
         descripcion: body.descripcion,
@@ -33,10 +37,14 @@ export async function PATCH(req, { params }) {
 // =======================================
 export async function DELETE(_, { params }) {
   try {
-    const id = Number(params.id)
+    const { id } = await params
+    const idNumber = Number(id)
+    if (Number.isNaN(idNumber)) {
+      return NextResponse.json({ error: "Id inválido" }, { status: 400 })
+    }
 
     await prisma.rol.update({
-      where: { id },
+      where: { id: idNumber },
       data: { estado: "ELIMINADO" },
     })
 

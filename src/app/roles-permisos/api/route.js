@@ -10,7 +10,10 @@ export async function GET(req) {
     const { searchParams } = new URL(req.url)
     const rolId = searchParams.get("rolId")
 
-    const where = rolId ? { rolId: Number(rolId) } : {}
+    const where = {
+      estado: { not: "ELIMINADO" },
+      ...(rolId ? { rolId: Number(rolId) } : {}),
+    }
 
     const items = await prisma.rolPermiso.findMany({
       where,

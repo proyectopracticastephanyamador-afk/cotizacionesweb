@@ -6,10 +6,14 @@ import { prisma } from "@/lib/prisma"
 // =======================================
 export async function DELETE(_, { params }) {
   try {
-    const id = Number(params.id)
+    const { id } = await params
+    const idNumber = Number(id)
+    if (Number.isNaN(idNumber)) {
+      return NextResponse.json({ error: "Id inválido" }, { status: 400 })
+    }
 
     await prisma.rolPermiso.update({
-      where: { id },
+      where: { id: idNumber },
       data: { estado: "INACTIVO" },
     })
 

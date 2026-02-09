@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma"
 // GET → Lista todos los regímenes
 export async function GET() {
   const items = await prisma.regimenLaboral.findMany({
+    where: { estado: { not: "ELIMINADO" } },
     orderBy: { id: "asc" }
   })
   return NextResponse.json(items)

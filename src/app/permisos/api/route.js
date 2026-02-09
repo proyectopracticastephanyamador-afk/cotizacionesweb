@@ -5,6 +5,7 @@ import { prisma } from "../../../lib/prisma.js"
 export async function GET() {
   try {
     const permisos = await prisma.permiso.findMany({
+      where: { estado: { not: "ELIMINADO" } },
       include: { modulo: true },
       orderBy: { id: "asc" },
     })

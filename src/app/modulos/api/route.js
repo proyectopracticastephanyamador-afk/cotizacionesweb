@@ -5,6 +5,7 @@ import { prisma } from "../../../lib/prisma.js"
 export async function GET() {
   try {
     const modulos = await prisma.modulo.findMany({
+      where: { estado: { not: "ELIMINADO" } },
       orderBy: { id: "asc" },
     })
     return NextResponse.json(modulos)

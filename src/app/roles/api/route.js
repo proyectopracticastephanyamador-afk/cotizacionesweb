@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma"
 export async function GET() {
   try {
     const roles = await prisma.rol.findMany({
+      where: { estado: { not: "ELIMINADO" } },
       orderBy: { id: "asc" },
     })
     return NextResponse.json(roles)

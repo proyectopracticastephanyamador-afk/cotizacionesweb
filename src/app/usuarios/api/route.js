@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma"
 export async function GET() {
   try {
     const usuarios = await prisma.usuario.findMany({
+      where: { estado: { not: "ELIMINADO" } },
       include: { rol: true },
       orderBy: { id: "desc" },
     })

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma"
 // GET – Lista todos los entes
 export async function GET() {
   const entes = await prisma.enteDeduccion.findMany({
+    where: { estado: { not: "ELIMINADO" } },
     orderBy: { id: "asc" }
   })
   return NextResponse.json(entes)

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma"
 // GET → todas las configuraciones
 export async function GET() {
   const data = await prisma.configuracionDeduccion.findMany({
+    where: { estado: { not: "ELIMINADO" } },
     include: { ente: true },
     orderBy: [{ enteId: "asc" }, { anio: "desc" }],
   })

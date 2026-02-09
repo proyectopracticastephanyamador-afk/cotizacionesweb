@@ -3,12 +3,16 @@ import { prisma } from "@/lib/prisma"
 
 // PATCH – Editar un ente
 export async function PATCH(req, { params }) {
-  const { id } = params
+  const { id } = await params
+  const idNumber = Number(id)
+  if (Number.isNaN(idNumber)) {
+    return NextResponse.json({ error: "Id inválido" }, { status: 400 })
+  }
   try {
     const body = await req.json()
 
     const actualizado = await prisma.enteDeduccion.update({
-      where: { id: Number(id) },
+      where: { id: idNumber },
       data: {
         nombre: body.nombre,
         descripcion: body.descripcion,
@@ -25,11 +29,15 @@ export async function PATCH(req, { params }) {
 
 // DELETE – Eliminar un ente
 export async function DELETE(_, { params }) {
-  const { id } = params
+  const { id } = await params
+  const idNumber = Number(id)
+  if (Number.isNaN(idNumber)) {
+    return NextResponse.json({ error: "Id inválido" }, { status: 400 })
+  }
 
   try {
     await prisma.enteDeduccion.update({
-      where: { id: Number(id) },
+      where: { id: idNumber },
       data: { estado: "ELIMINADO" }
     })
     return NextResponse.json({ ok: true })

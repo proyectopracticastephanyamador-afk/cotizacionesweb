@@ -3,11 +3,15 @@ import { prisma } from "@/lib/prisma";
 
 export async function PUT(req, { params }) {
   try {
-    const id = Number(params.id);
+    const { id } = await params;
+    const idNumber = Number(id);
+    if (Number.isNaN(idNumber)) {
+      return NextResponse.json({ error: "Id inválido" }, { status: 400 });
+    }
     const body = await req.json();
 
     const actualizado = await prisma.tramoISR.update({
-      where: { id },
+      where: { id: idNumber },
       data: {
         anio: body.anio,
         desde: body.desde,
@@ -29,11 +33,15 @@ export async function PUT(req, { params }) {
 
 export async function DELETE(req, { params }) {
   try {
-    const id = Number(params.id);
+    const { id } = await params;
+    const idNumber = Number(id);
+    if (Number.isNaN(idNumber)) {
+      return NextResponse.json({ error: "Id inválido" }, { status: 400 });
+    }
 
     // Soft delete: marcar como ELIMINADO
     const eliminado = await prisma.tramoISR.update({
-      where: { id },
+      where: { id: idNumber },
       data: { estado: "ELIMINADO" },
     });
 
