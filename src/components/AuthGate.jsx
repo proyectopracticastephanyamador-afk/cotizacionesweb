@@ -21,6 +21,7 @@ export default function AuthGate({ children, onUser }) {
     executedRef.current = true
 
     const check = async () => {
+      let canRender = false
       try {
         const res = await fetch("/auth/me", {
           credentials: "include",
@@ -34,10 +35,11 @@ export default function AuthGate({ children, onUser }) {
 
         const user = await res.json()
         onUser?.(user)
+        canRender = true
       } catch {
         router.replace("/login")
       } finally {
-        setLoading(false)
+        if (canRender) setLoading(false)
       }
     }
 
