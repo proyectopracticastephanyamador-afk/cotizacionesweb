@@ -165,7 +165,7 @@ export default function CotizacionesPage() {
 
 
 
-const generarPDF = (detalle, resumen) => {
+const generarPDF = async (detalle, resumen) => {
   if (!detalle || !resumen) return;
   const pdf = new jsPDF({
     unit: "pt",
@@ -309,6 +309,20 @@ const generarPDF = (detalle, resumen) => {
   // ================================
   //pdf.save(`Cotizacion-${form.empleadoNombre}.pdf`);
   pdf.save(`Cotizacion.pdf`);
+
+  try {
+    await fetch("/bitacora/api", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        accion: "DESCARGA DE COTIZACION",
+        modulo: "Cotizaciones",
+        descripcion: `Empleado ${resumen.empleadoNombre} - Neto L ${resumen.salarioNeto.toFixed(2)}`,
+      }),
+    });
+  } catch (err) {
+    console.error("Error registrando descarga en bitacora:", err);
+  }
 };
 
 

@@ -50,6 +50,19 @@ export async function POST(req) {
       rol: user.rol?.nombre,
     })
 
+    try {
+      await prisma.bitacora.create({
+        data: {
+          usuarioId: user.id,
+          accion: "INICIO DE SESION",
+          modulo: "Autenticacion",
+          descripcion: `Inicio de sesion de ${user.email}`,
+        },
+      })
+    } catch (logError) {
+      console.error("Error guardando bitacora login:", logError)
+    }
+
     // ✅ aquí SÍ se guarda la cookie (Next 16)
     res.cookies.set(SESSION_COOKIE, sessionToken, getSessionCookieOptions())
 

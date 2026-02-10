@@ -1,5 +1,26 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getSessionUserId } from "@/lib/session";
+import { verifyMobileAuth } from "@/lib/auth-mobile";
+
+async function getActorInfo(req) {
+  const auth = req.headers.get("authorization");
+  if (auth) {
+    const mobile = verifyMobileAuth(req);
+    const mobileId = Number(mobile?.id);
+    if (Number.isInteger(mobileId)) {
+      return { userId: mobileId, canal: "MOBILE" };
+    }
+    return { userId: 1, canal: "MOBILE" };
+  }
+
+  const webUserId = await getSessionUserId();
+  if (Number.isInteger(webUserId)) {
+    return { userId: webUserId, canal: "WEB" };
+  }
+
+  return { userId: 1, canal: "WEB" };
+}
 
 /* ============================================================
    UTILIDADES DE CONFIGURACIÓN (copiadas del endpoint principal)
@@ -239,6 +260,22 @@ export async function POST(req) {
       },
       warnings,
     };
+
+    if (body.descarga === true) {
+      try {
+        const actor = await getActorInfo(req);
+        await prisma.bitacora.create({
+          data: {
+            usuarioId: actor.userId,
+            accion: "DESCARGA DE COTIZACION",
+            modulo: "Cotizaciones",
+            descripcion: `Empleado ${empleadoNombre} - Neto L ${Number(salarioNeto).toFixed(2)} - Canal ${actor.canal}`,
+          },
+        });
+      } catch (logError) {
+        console.error("Error guardando bitacora descarga:", logError);
+      }
+    }
 
     return NextResponse.json(respuesta);
   } catch (error) {

@@ -1,7 +1,28 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getSessionUserId } from "@/lib/session";
+import { verifyMobileAuth } from "@/lib/auth-mobile";
 
 const ANIO_VIGENTE = new Date().getFullYear();
+
+async function getActorInfo(req) {
+  const auth = req.headers.get("authorization");
+  if (auth) {
+    const mobile = verifyMobileAuth(req);
+    const mobileId = Number(mobile?.id);
+    if (Number.isInteger(mobileId)) {
+      return { userId: mobileId, canal: "MOBILE" };
+    }
+    return { userId: 1, canal: "MOBILE" };
+  }
+
+  const webUserId = await getSessionUserId();
+  if (Number.isInteger(webUserId)) {
+    return { userId: webUserId, canal: "WEB" };
+  }
+
+  return { userId: 1, canal: "WEB" };
+}
 
 /* ============================================================
    UTILIDADES DE CONFIGURACIÓN
@@ -315,6 +336,20 @@ export async function POST(req) {
         regimen: true,
       },
     });
+
+    try {
+      const actor = await getActorInfo(req);
+      await prisma.bitacora.create({
+        data: {
+          usuarioId: actor.userId,
+          accion: "CREACION DE COTIZACION",
+          modulo: "Cotizaciones",
+          descripcion: `Empleado ${nueva.empleadoNombre} - Salario L ${Number(nueva.salarioBruto).toFixed(2)} - Regimen ${nueva.regimen?.nombre || ""} - Canal ${actor.canal}`,
+        },
+      });
+    } catch (logError) {
+      console.error("Error guardando bitacora cotizacion:", logError);
+    }
 
     return NextResponse.json({
       ...nueva,

@@ -21,6 +21,19 @@ export async function PUT(req, { params }) {
       },
     });
 
+    try {
+      await prisma.bitacora.create({
+        data: {
+          usuarioId: 1,
+          accion: "ACTUALIZACION DE TRAMO ISR",
+          modulo: "ISR",
+          descripcion: `Tramo ${actualizado.anio}: desde ${actualizado.desde} hasta ${actualizado.hasta ?? "en adelante"} (${Number(actualizado.porcentaje) * 100}%)`,
+        },
+      });
+    } catch (logError) {
+      console.error("Error guardando bitacora ISR (PUT):", logError);
+    }
+
     return NextResponse.json(actualizado);
   } catch (error) {
     console.error("Error actualizando tramo ISR:", error);
@@ -44,6 +57,19 @@ export async function DELETE(req, { params }) {
       where: { id: idNumber },
       data: { estado: "ELIMINADO" },
     });
+
+    try {
+      await prisma.bitacora.create({
+        data: {
+          usuarioId: 1,
+          accion: "ELIMINACION DE TRAMO ISR",
+          modulo: "ISR",
+          descripcion: `Tramo ${eliminado.anio}: desde ${eliminado.desde} hasta ${eliminado.hasta ?? "en adelante"} (${Number(eliminado.porcentaje) * 100}%)`,
+        },
+      });
+    } catch (logError) {
+      console.error("Error guardando bitacora ISR (DELETE):", logError);
+    }
 
     return NextResponse.json(eliminado);
   } catch (error) {

@@ -41,6 +41,19 @@ export async function POST(req) {
       },
     });
 
+    try {
+      await prisma.bitacora.create({
+        data: {
+          usuarioId: 1,
+          accion: "CREACION DE TRAMO ISR",
+          modulo: "ISR",
+          descripcion: `Tramo ${nuevo.anio}: desde ${nuevo.desde} hasta ${nuevo.hasta ?? "en adelante"} (${Number(nuevo.porcentaje) * 100}%)`,
+        },
+      });
+    } catch (logError) {
+      console.error("Error guardando bitacora ISR (POST):", logError);
+    }
+
     return NextResponse.json(nuevo);
   } catch (error) {
     console.error("Error creando tramo ISR:", error);
